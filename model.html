@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SHIELD 1.0 – Crowd Threat Monitor</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #1e293b;
+      border-radius: 10px;
+      border-left: 4px solid #ef4444;
+    }
+
+    .header h1 {
+      font-size: 28px;
+    }
+
+    .status-badge {
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-connected {
+      background: #10b981;
+      color: white;
+    }
+
+    .status-disconnected {
+      background: #6b7280;
+      color: white;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+    }
+
+    .video-panel,
+    .threat-panel {
+      background: #1e293b;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #videoCanvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .threat-level {
+      text-align: center;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .threat-LOW {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .threat-MEDIUM {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .threat-HIGH {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 5px;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #60a5fa;
+    }
+
+    .reasons-box {
+      background: #0f172a;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .reasons-box h3 {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .reason-item {
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #1e293b;
+      border-radius: 5px;
+      border-left: 3px solid #60a5fa;
+      font-size: 13px;
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-start {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-stop {
+      background: #ef4444;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+      <h1>🛡️ SHIELD 1.0 – Crowd Threat Detection</h1>
+      <span id="statusBadge" class="status-badge status-disconnected">
+        DISCONNECTED
+      </span>
+    </div>
+
+    <div class="main-grid">
+
+      <!-- VIDEO PANEL -->
+      <div class="video-panel">
+        <h3>Live Feed Analysis</h3>
+        <div class="video-container">
+          <canvas id="videoCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+          <button class="btn-start" onclick="startAnalysis()">▶ Start Analysis</button>
+          <button class="btn-stop" onclick="stopAnalysis()">⏹ Stop</button>
+        </div>
+      </div>
+
+      <!-- THREAT PANEL -->
+      <div class="threat-panel">
+        <div id="threatLevel" class="threat-level threat-LOW">LOW</div>
+
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-label">People Detected</div>
+            <div id="personCount" class="metric-value">0</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Density (p/sqm)</div>
+            <div id="density" class="metric-value">0.0</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Threat Score</div>
+            <div id="threatScore" class="metric-value">0.00</div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-label">Frames Analyzed</div>
+            <div id="frameCount" class="metric-value">0</div>
+          </div>
+        </div>
+
+        <div class="reasons-box">
+          <h3>ANALYSIS FACTORS</h3>
+          <div id="reasonsList"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    let ws = null;
+    let frameCount = 0;
+
+    const canvas = document.getElementById('videoCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function startAnalysis() {
+      if (ws && ws.readyState === WebSocket.OPEN) return;
+
+      frameCount = 0;
+      ws = new WebSocket('ws://localhost:8000/ws/stream');
+
+      ws.onopen = () => {
+        document.getElementById('statusBadge').textContent = 'CONNECTED';
+        document.getElementById('statusBadge').className =
+          'status-badge status-connected';
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        updateUI(data);
+        drawDetections(data);
+        frameCount++;
+      };
+
+      ws.onclose = () => {
+        document.getElementById('statusBadge').textContent = 'DISCONNECTED';
+        document.getElementById('statusBadge').className =
+          'status-badge status-disconnected';
+      };
+    }
+
+    function stopAnalysis() {
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+    }
+
+    function updateUI(data) {
+      const threatLevelDiv = document.getElementById('threatLevel');
+      threatLevelDiv.textContent = data.threat_level;
+      threatLevelDiv.className = `threat-level threat-${data.threat_level}`;
+
+      document.getElementById('personCount').textContent = data.person_count || 0;
+      document.getElementById('density').textContent = data.density || 0;
+      document.getElementById('threatScore').textContent = data.threat_score || 0;
+      document.getElementById('frameCount').textContent = frameCount;
+
+      const reasonsList = document.getElementById('reasonsList');
+      reasonsList.innerHTML = (data.reasons || [])
+        .map(r => `<div class="reason-item">${r}</div>`)
+        .join('');
+    }
+
+    function drawDetections(data) {
+      if (!data.detections) return;
+
+      if (canvas.width === 0) {
+        canvas.width = 1280;
+        canvas.height = 720;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      data.detections.forEach(det => {
+        const [x1, y1, x2, y2] = det.bbox;
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+
+        ctx.fillStyle = '#10b981';
+        ctx.font = '12px monospace';
+        ctx.fillText(`${(det.conf * 100).toFixed(0)}%`, x1, y1 - 5);
+      });
+    }
+  </script>
+</body>
+</html>

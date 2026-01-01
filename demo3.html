@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SHIELD 1.0 Debug Dashboard</title>
+  <style>
+    body { background:#111; color:#0f0; font-family: monospace; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>SHIELD 1.0 – Debug</h2>
+  <pre id="out">Waiting...</pre>
+
+  <script>
+    const URL = "http://192.168.137.218/data"; // <-- VERIFY IP
+
+    async function fetchData() {
+      try {
+        const res = await fetch(URL, { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+        const json = await res.json();
+        document.getElementById("out").textContent =
+          JSON.stringify(json, null, 2);
+      } catch (err) {
+        document.getElementById("out").textContent =
+          "FETCH ERROR:\n" + err.toString();
+        console.error(err);
+      }
+    }
+
+    setInterval(fetchData, 500);
+  </script>
+</body>
+</html>

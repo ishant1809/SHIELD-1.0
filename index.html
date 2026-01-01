@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIELD 1.0 - Surveillance Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <i class="fas fa-activity"></i>
+                <h1>SHIELD 1.0</h1>
+            </div>
+            <div class="header-right">
+                <div class="header-item">
+                    <div class="label">LOCATION</div>
+                    <div class="value">Mumbai, Maharashtra</div>
+                </div>
+                <div class="header-item">
+                    <div class="label">DATE</div>
+                    <div class="value" id="current-date"></div>
+                </div>
+                <div class="header-item">
+                    <div class="label">TIME</div>
+                    <div class="value time" id="current-time"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Top Row: Drone and Thermal Feeds -->
+            <div class="video-panel drone-panel">
+                <div class="panel-header">
+                    <i class="fas fa-broadcast-tower"></i>
+                    <h3>DRONE FEED</h3>
+                </div>
+                <div class="video-container drone-border">
+                    <video id="drone-video" muted playsinline preload="auto">
+                        <source src="drone.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
+            <div class="video-panel thermal-panel">
+                <div class="panel-header">
+                    <i class="fas fa-temperature-high"></i>
+                    <h3>THERMAL FEED</h3>
+                </div>
+                <div class="video-container thermal-border">
+                    <video id="thermal-video" muted playsinline preload="auto" class="thermal-filter">
+                        <source src="thermal1b.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
+            <!-- Control Panel - Right Side -->
+            <div class="control-panel">
+                <!-- Simulate Button -->
+                <button id="simulate-btn" class="simulate-btn">
+                    GO LIVE
+                </button>
+
+                <!-- Threat Score -->
+                <div class="threat-card" id="threat-card">
+                    <div class="card-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>THREAT LEVEL</h3>
+                    </div>
+                    <div class="threat-score" id="threat-score">0</div>
+                    <div class="threat-status" id="threat-status">NOMINAL</div>
+                </div>
+
+                <!-- Indicators -->
+                <div class="indicators-card">
+                    <h3 class="indicators-title">ANALYTICS</h3>
+                    
+                    <div class="indicator">
+                        <div class="indicator-label">
+                            <i class="fas fa-users"></i>
+                            <span>Crowd Density</span>
+                        </div>
+                        <span class="indicator-value" id="crowd-density">LOW</span>
+                    </div>
+
+                    <div class="indicator">
+                        <div class="indicator-label">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Stampede Risk</span>
+                        </div>
+                        <span class="indicator-value" id="stampede-risk">LOW</span>
+                    </div>
+
+                    <div class="indicator">
+                        <div class="indicator-label">
+                            <i class="fas fa-volume-up"></i>
+                            <span>Noise Level</span>
+                        </div>
+                        <span class="indicator-value" id="noise-level">LOW</span>
+                    </div>
+
+                    <div class="indicator">
+                        <div class="indicator-label">
+                            <i class="fas fa-eye"></i>
+                            <span>Crowd Anomaly</span>
+                        </div>
+                        <span class="indicator-value" id="crowd-anomaly">NONE</span>
+                    </div>
+
+                    <div class="separator"></div>
+
+                    <div class="indicator">
+                        <div class="indicator-label">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>GPS Location</span>
+                        </div>
+                    </div>
+                    <div class="gps-coords">
+                        <div>LAT: <span id="gps-lat">19.0760</span>°N</div>
+                        <div>LON: <span id="gps-lon">72.8777</span>°E</div>
+                    </div>
+                    <div class="gps-image">
+    <img src="bprnd.png" alt="Location visual">
+</div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Map and Event Log -->
+            <div class="map-panel">
+                <div class="panel-header">
+                    <i class="fas fa-map"></i>
+                    <h3>LOCATION MAP</h3>
+                </div>
+                <div class="map-container">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3771.991234567890!2d72.87570!3d19.076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTnCsDA0JzMzLjYiTiA3MsKwNTInMzkuNyJF!5e0!3m2!1sen!2sin!4v1234567890123!5m2!1sen!2sin"
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="event-log-card">
+                <div class="event-log-header">
+                    <div class="event-log-title">
+                        <i class="fas fa-clock"></i>
+                        <h3>EVENT TIMELINE</h3>
+                        <span class="event-count" id="event-count">0</span>
+                    </div>
+                </div>
+                <div class="event-log-content">
+                    <div class="no-events" id="no-events">No events recorded yet</div>
+                    <div id="event-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
